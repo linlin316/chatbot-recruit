@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>採用サイト</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <main>
+    <h1>サイト（仮）</h1>
+    <p>右下のチャットからご案内します。</p>
+  </main>
+
+  <!-- ===== 右下チャットウィジェット ===== -->
+  <button id="chatFab" class="chat-fab" aria-label="チャットを開く">チャット</button>
+
+  <section id="chatWidget" class="chat-widget" aria-label="チャットウィンドウ">
+    <header class="chat-header">
+      <div>
+        <strong>採用チャット案内</strong>
+        <div class="chat-sub">採用に関する一般的なご案内をします</div>
+      </div>
+      <button id="chatClose" class="chat-close" aria-label="閉じる">×</button>
+    </header>
+
+    <!-- 対話泡泡だけここに入る（スクロール対象） -->
+    <div id="chatBody" class="chat-body">
+      <div class="msg bot">
+        <div class="bubble">
+          こんにちは。気になる内容を選ぶか、質問を入力してください。
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ボタンエリア（固定）===== -->
+    <div class="quick-fixed">
+
+      <!-- 大分類ボタン -->
+      <div class="quick-main">
+        <button class="main-btn" data-cat="work">仕事について</button>
+        <button class="main-btn" data-cat="benefits">福利厚生・待遇</button>
+        <button class="main-btn" data-cat="company">応募・会社について</button>
+      </div>
+      
+      <!-- 小分類ボタン -->
+      <div id="quick-sub" class="quick-sub"></div>
+      </div>
+
+      <!-- 入力 -->
+      <form id="chatForm" class="chat-form">
+          <input id="chatInput" class="chat-input" type="text" placeholder="質問を入力…" autocomplete="off" maxlength="500">
+          <button class="chat-send" type="submit">送信</button>
+      </form>
+  </section>
+
+  <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+
+</body>
+</html>
