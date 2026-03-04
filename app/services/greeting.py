@@ -72,16 +72,19 @@ def strip_greeting_prefix(text: str) -> str:
         # 元テキストの先頭が挨拶で始まるか確認（正規化せず直接比較）
         if t.startswith(greeting_key):
             remainder = t[len(greeting_key):]
+
             # 区切り文字（句読点・空白）を除去
             remainder = re.sub(r"^[\s　、,。.!！]+", "", remainder)
             return remainder.strip()
+        
 
         # 全角→半角変換などで一致する場合も考慮（normalize同士で比較）
         norm_key = normalize_text(greeting_key)
         norm_t = normalize_text(t)
+
         if norm_t.startswith(norm_key):
-            # 元テキストから近似的に残りを取り出す
-            # normalize後の長さ分だけ元テキストを進める（保守的に文字数で推定）
+            # normalize後の文字数が元テキストと異なる場合（全角記号など）、
+            # cutがズレる可能性あり。ただし挨拶ワードは通常の日本語文字のみなので実害は低い
             cut = len(greeting_key)
             remainder = t[cut:]
             remainder = re.sub(r"^[\s　、,。.!！]+", "", remainder)

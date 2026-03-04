@@ -3,7 +3,9 @@ import threading
 import anthropic
 from ..config import Config
 
-# ===== Claude API 呼叫計數 =====
+# ===== Claude API 呼び出し回数カウンター =====
+# ログ出力専用。制限には使用していない
+# サーバー再起動でリセットされる
 _claude_call_lock = threading.Lock()
 _call_count = 0
 
@@ -40,7 +42,7 @@ def claude_reply(user_text: str) -> str:
         with _claude_call_lock:
             _call_count += 1
             current = _call_count
-        print(f"[Claude CALL] total={current}") # ログ目的のみ（再起動でリセットされる）
+        print(f"[Claude CALL] total={current}") # ログ出力のみ（再起動でリセットされる）
 
         msg = client.messages.create(
             model=Config.CLAUDE_MODEL,

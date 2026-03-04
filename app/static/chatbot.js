@@ -57,27 +57,35 @@ function toggle(open) {
 fab.addEventListener("click", () => toggle(true));
 closeBtn.addEventListener("click", () => toggle(false));
 
+// 送信中フラグ（二重送信防止）
+let isSending = false;
+
 
 // サーバーの /chat API に問い合わせてボット応答を取得する
-// HTTPエラー時はユーザー向けメッセージを返す
+// HTTPエラー・ネットワークエラー時はユーザー向けメッセージを返す
 async function sendToServer(message) {
-    const res = await fetch("/chat", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({message})
-    });
+    try {
+        const res = await fetch("/chat", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({message})
+        });
 
-    if (!res.ok) {
-        return "エラーが発生しました。時間をおいて再度お試しください。";
-      }
+        if (!res.ok) {
+            return "エラーが発生しました。時間をおいて再度お試しください。";
+        }
 
-    const data = await res.json();
-      return data.reply || "（返答が取得できませんでした）";
+        const data = await res.json();
+        return data.reply || "（返答が取得できませんでした）";
+    } catch (e) {
+        // ネットワーク切断・タイムアウトなどの通信エラー
+        return "通信エラーが発生しました。接続を確認してください。";
     }
+}
 
 
 // クイック返信ボタンの定義
-// label: ボタン表示名
+// label: ボタンの表示名
 // q: サーバーに送信する質問文
 const SUB_OPTIONS = {
     work: [
@@ -129,22 +137,31 @@ document.addEventListener("click", async (e) => {
     if (!btn) return;
 
     const q = btn.dataset.q || "";
-    if (!q) return;
+    if (!q || isSending) return;
 
+    isSending = true;
     addMsg(q, "user");
     const reply = await sendToServer(q);
     addMsg(reply, "bot");
-    });
+    isSending = false;
+});
 
 
 // 入力送信処理
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const text = input.value.trim();
-    if (!text) return;
+    if (!text || isSending) return;
+
+    isSending = true;
     input.value = "";
+    input.disabled = true;
 
     addMsg(text, "user");
     const reply = await sendToServer(text);
     addMsg(reply, "bot");
-    });
+
+    input.disabled = false;
+    input.focus();
+    isSending = false;
+});

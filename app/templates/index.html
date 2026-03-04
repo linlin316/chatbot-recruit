@@ -9,7 +9,7 @@
 <body>
 
   <main>
-    <h1>サイト（仮）</h1>
+    <h1>サイト</h1>
     <p>右下のチャットからご案内します。</p>
   </main>
 
@@ -46,13 +46,13 @@
       
       <!-- 小分類ボタン -->
       <div id="quick-sub" class="quick-sub"></div>
-      </div>
+    </div>
 
-      <!-- 入力 -->
-      <form id="chatForm" class="chat-form">
-          <input id="chatInput" class="chat-input" type="text" placeholder="質問を入力…" autocomplete="off" maxlength="500">
-          <button class="chat-send" type="submit">送信</button>
-      </form>
+    <!-- 入力 -->
+    <form id="chatForm" class="chat-form">
+        <input id="chatInput" class="chat-input" type="text" placeholder="質問を入力…" autocomplete="off" maxlength="500">
+        <button class="chat-send" type="submit">送信</button>
+    </form>
   </section>
 
   <script src="{{ url_for('static', filename='chatbot.js') }}"></script>

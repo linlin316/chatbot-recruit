@@ -4,6 +4,22 @@ from .safety import should_block, normalize_text
 from .faq import match_faq
 from .llm_claude import claude_reply
 from .greeting import get_greeting_reply, strip_greeting_prefix
+from ..db import get_db
+
+
+def save_unanswered(question: str) -> None:
+    """FAQにヒットしなかった質問をDBに記録する"""
+    try:
+        conn = get_db()
+        
+        conn.execute(
+            "INSERT INTO unanswered (question) VALUES (?)",
+            (question,)
+        )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[unanswered 記録エラー] {e}")
 
 
 def handle_chat(user_text: str) -> dict:
@@ -45,6 +61,7 @@ def handle_chat(user_text: str) -> dict:
     if faq_reply:
         return {"reply": faq_reply, "source": "faq"}
     
-    # それ以外はClaude
+    # FAQにヒットしなかったら、記録してからClaudeへ
+    save_unanswered(text)
     reply = claude_reply(text)
     return {"reply": reply, "source": "ai"}
