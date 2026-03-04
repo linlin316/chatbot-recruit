@@ -55,7 +55,7 @@ pip install -r requirements.txt
 ### 2. 環境変数の設定
 ```bash
 .env.example を参考に .env ファイルを作成します。
-CLAUDE_API_KEY=your_api_key_here
+ANTHROPIC_API_KEY=your_api_key_here
 
 ※ .env は Git にアップロードされません。
 ```
