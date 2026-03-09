@@ -15,19 +15,15 @@ limiter = Limiter(
 
 
 def create_app() -> Flask:
+    # .env を読み込む
+    # ANTHROPIC_API_KEY がなくてもアプリは起動できるが、
+    # FAQに命中しない質問への AI回答が無効になる
     load_dotenv()
-
-    # 起動時に必須の環境変数チェック（最初のAPI呼び出しまで気づけない問題を防ぐ）
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        raise RuntimeError(
-            "環境変数 ANTHROPIC_API_KEY が設定されていません。"
-            ".env ファイルまたは環境変数を確認してください。"
-        )
 
     app = Flask(__name__)
     app.config.from_object("app.config.Config")
 
-    # Limiter（全體デフォルト + memory storage）
+    # Limiter 初期化
     limiter.init_app(app)
 
     # routes（Blueprint）
