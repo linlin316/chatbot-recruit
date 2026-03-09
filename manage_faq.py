@@ -249,7 +249,6 @@ def link_to_faq(conn: sqlite3.Connection, unanswered_id: int, question: str):
 def delete_unanswered(conn: sqlite3.Connection, unanswered_id: int):
     """
     FAQには追加しないで、未命中質問を削除する
-    例: いたずら/関係ない質問/機密質問など
     """
     conn.execute("DELETE FROM unanswered WHERE id = ?", (unanswered_id,))
     conn.commit()
