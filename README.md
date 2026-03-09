@@ -43,6 +43,9 @@ app/
 ├── db.py                 # DB接続・テーブル初期化
 └── routes.py             # APIエンドポイント
 
+data/
+└── chatbot.db            # SQLiteデータベース（自動生成）
+
 init_db.py                # 初回のみ実行：DB初期化＋FAQデータ投入
 manage_faq.py             # 未命中質問の確認・FAQ同義語追加
 check_db.py               # DB内容の確認
