@@ -11,12 +11,14 @@ def save_unanswered(question: str) -> None:
     """FAQにヒットしなかった質問をDBに記録する"""
     try:
         conn = get_db()
+
+        # 同じ質問が既にある場合はスキップ
+        existing = conn.execute(
+            "SELECT id FROM unanswered WHERE question = ?", (question,)).fetchone()
         
-        conn.execute(
-            "INSERT INTO unanswered (question) VALUES (?)",
-            (question,)
-        )
-        conn.commit()
+        if not existing:
+            conn.execute("INSERT INTO unanswered (question) VALUES (?)", (question,))
+            conn.commit()
         conn.close()
     except Exception as e:
         print(f"[unanswered 記録エラー] {e}")

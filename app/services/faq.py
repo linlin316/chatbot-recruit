@@ -27,7 +27,6 @@ BROAD_WORDS = {
 MIN_TOKEN_LEN = 2
 MIN_MATCH_SCORE = 4.0
 
-
 def _load_faq_from_db(force: bool = False) -> tuple[dict, dict, dict]:
     """
     DBからFAQデータを読み込んで3つの辞書を返す（キャッシュあり）
@@ -114,10 +113,13 @@ def _calc_match_score(user_text: str, key: str, synonyms: list[str], priority: i
         syn_norm = normalize_text(syn)
         if not syn_norm or len(syn_norm) < MIN_TOKEN_LEN:
             continue
-
         if syn_norm in user_text:
             score += _score_token_hit(syn_norm)
             hit_count += 1
+
+    # ヒットが0件なら即座に0を返す（priorityだけで通過しないように）
+    if hit_count == 0:
+        return 0.0
 
     # 2個以上ヒットしたら少し加点
     if hit_count >= 2:

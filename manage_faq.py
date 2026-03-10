@@ -7,13 +7,6 @@ FAQ管理スクリプト
 - 既存FAQの同義語（synonyms）を増やしてFAQ命中率を上げる
 - 結果として Claude/AI の呼び出し回数を減らす
 
-=== (使い方の流れ) ===
-1) 未命中質問一覧が表示される
-2) 処理したい質問のIDを選ぶ
-3) a を選ぶ → どのFAQキーに紐付けるか選ぶ
-4) 同義語（短い言葉）を追加する
-   例：「社長は誰ですか？」 → 同義語: "社長 代表 CEO"
-5) その質問は unanswered から削除される（処理済み扱い）
 """
 
 import json
@@ -136,10 +129,8 @@ def suggest_faq_keys(conn: sqlite3.Connection, question: str, top_k: int = 5) ->
         fid = int(r["id"])
         key = r["key"]
         pr = int(r["priority"] or 1)
-
         keyn = _norm(key)
         syns = _safe_load_list(r["synonyms"])
-
         evidence = 0.0
 
         # key が質問文に含まれるか
@@ -245,6 +236,30 @@ def link_to_faq(conn: sqlite3.Connection, unanswered_id: int, question: str):
     else:
         print("   追加した同義語: （原文）")
 
+    
+def delete_all_unanswered(conn: sqlite3.Connection):
+    """未命中の質問を全件削除してIDをリセット"""
+    try:
+        count = conn.execute("SELECT COUNT(*) FROM unanswered").fetchone()[0]
+    except sqlite3.OperationalError:
+        pass
+
+    if count == 0:
+        print("📭 削除する質問はありません。")
+        return
+    
+    confirm = input(f"⚠️  {count}件すべて削除してIDをリセットします。よろしいですか？（y/n）: ").strip().lower()
+    if confirm != "y":
+        print("キャンセルしました。")
+        return
+    
+    conn.execute("DELETE FROM unanswered")
+
+    # IDを1からリセット
+    conn.execute("DELETE FROM sqlite_sequence WHERE name='unanswered'")
+    conn.commit()
+    print(f"✅ {count}件を削除し、IDを1からリセットしました。")
+
 
 def delete_unanswered(conn: sqlite3.Connection, unanswered_id: int):
     """
@@ -266,12 +281,20 @@ def main():
     try:
         while True:
             rows = show_unanswered(conn)
-            if not rows:
-                break
 
-            id_str = input("処理したい質問のIDを入力（qで終了）: ").strip()
+            print("  all: 全件削除してIDリセット  /  q: 終了")
+            id_str = input("処理したい質問のIDを入力: ").strip()
+
             if id_str.lower() == "q":
                 break
+
+            if id_str.lower() == "all":
+               delete_all_unanswered(conn)
+               continue
+
+            if not rows:
+               continue
+
             if not id_str.isdigit():
                 print("⚠️  数字を入力してください。")
                 continue
