@@ -45,11 +45,14 @@ def _build_client() -> anthropic.Anthropic | None:
     return anthropic.Anthropic(api_key=api_key)
 
 
+# ===== クライアントを起動時に1回だけ作る =====
+_client: anthropic.Anthropic | None = _build_client()
+
+
 def claude_reply(user_text: str) -> str:
     global _call_count
 
-    client = _build_client()
-    if client is None:
+    if _client is None:
         return "現在AI応答は利用できません。募集要項または採用担当へご確認ください。"
     
     try:
@@ -58,7 +61,7 @@ def claude_reply(user_text: str) -> str:
             current = _call_count
         print(f"[Claude CALL] total={current}") # ログ出力のみ（再起動でリセットされる）
 
-        msg = client.messages.create(
+        msg = _client.messages.create(
             model=Config.CLAUDE_MODEL,
             max_tokens=Config.CLAUDE_MAX_TOKENS,
             temperature=Config.CLAUDE_TEMPERATURE,
